@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env
+.env.*
+
+# VSCode settings (optional, if you use VSCode)
+.vscode/
+
+# macOS / Linux / Windows system files
+.DS_Store
+Thumbs.db
+
+# PyInstaller
+*.spec
+
+# FastAPI reload artifacts
+*.log
+
+# PDF temp files
+temp/
+*.pdf
+
+# Uploads and generated files
+uploads/
+*.sqlite3
+*.db
+
+# Local cache files
+.cache/
+*.bak
+
+# Frontend
+/web/node_modules/
+web/dist/
+web/build/
+
+# AWS credentials (never commit these)
+.aws/
+
+# Python packages
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# FAISS index (if you save it later)
+*.index

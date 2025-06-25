@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI PDF Query System</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #f8f9fa, #e9ecef);
+      color: #333;
+      margin: 0;
+      padding: 40px;
+    }
+
+    h1, h2, h3 {
+      color: #1d3557;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #ffffff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    form, .query-box {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input[type="file"], input[type="text"] {
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 12px;
+      background-color: #1d3557;
+      color: #ffffff;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #457b9d;
+    }
+
+    pre {
+      background-color: #f1f1f1;
+      padding: 20px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 20px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    @media screen and (max-width: 600px) {
+      body {
+        padding: 20px;
+      }
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📄 AI PDF Query System</h1>
+
+    <h2>Step 1: Upload your PDF</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="file" accept=".pdf" required />
+      <button type="submit">Upload PDF</button>
+    </form>
+
+    <h2>Step 2: Ask your Question</h2>
+    <div class="query-box">
+      <input type="text" id="question" placeholder="E.g., What is the document about?" />
+      <button onclick="ask()">Ask Gemini</button>
+    </div>
+
+    <h3>🔎 Response</h3>
+    <pre id="result">No results yet.</pre>
+  </div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      try {
+        const res = await fetch("/upload-pdf", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          result.textContent = `✅ Uploaded! Chunks: ${data.chunks}\n🔗 S3 URL: ${data.s3_url}`;
+        } else {
+          result.textContent = `❌ Upload failed: ${data.detail}`;
+        }
+      } catch (err) {
+        result.textContent = "❌ Upload failed: " + err.message;
+      }
+    });
+
+    async function ask() {
+      const q = document.getElementById("question").value;
+      try {
+        const res = await fetch("/query", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: new URLSearchParams({ q })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          result.textContent = "💬 Answer:\n" + data.answer;
+        } else {
+          result.textContent = "❌ Query failed: " + data.detail;
+        }
+      } catch (err) {
+        result.textContent = "❌ Query failed: " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
